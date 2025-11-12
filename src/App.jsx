@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import Lenis from 'lenis'
 import './App.css'
 
 async function submitLead(formEvent) {
@@ -446,6 +447,27 @@ export default function App() {
   const [hasShownModal, setHasShownModal] = useState(false)
 
   useEffect(() => {
+    // Initialize Lenis smooth scrolling
+    const lenis = new Lenis({
+      duration: 2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      direction: 'vertical',
+      gestureDirection: 'vertical',
+      smooth: true,
+      mouseMultiplier: 1,
+      smoothTouch: false,
+      touchMultiplier: 2,
+      infinite: false,
+    })
+
+    // Update scroll
+    function raf(time) {
+      lenis.raf(time)
+      requestAnimationFrame(raf)
+    }
+    
+    requestAnimationFrame(raf)
+
     const openListener = () => setShowQuickModal(true)
     window.addEventListener('tt:openModal', openListener)
     const onScroll = () => {
@@ -467,6 +489,7 @@ export default function App() {
       }
     }, 20000)
     return () => {
+      lenis.destroy()
       window.removeEventListener('tt:openModal', openListener)
       window.removeEventListener('scroll', onScroll)
       clearTimeout(timer)
